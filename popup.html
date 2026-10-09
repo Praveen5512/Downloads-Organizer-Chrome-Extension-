@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloads Organizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="popup-wrapper">
+        <!-- Header -->
+        <header class="popup-header">
+            <div class="header-brand">
+                <img src="icons/icon48.png" alt="Icon" class="header-icon">
+                <div>
+                    <h1 class="header-title">Downloads Organizer</h1>
+                    <span class="header-status" id="status-indicator">
+                        <span class="status-dot"></span>
+                        <span id="status-text">Active</span>
+                    </span>
+                </div>
+            </div>
+            <label class="switch-toggle" title="Toggle extension">
+                <input type="checkbox" id="popup-toggle" checked>
+                <span class="slider"></span>
+            </label>
+        </header>
+
+        <!-- Current Tab Quick Action -->
+        <div class="current-site-bar" id="current-site-bar">
+            <div class="site-info">
+                <span class="site-icon">🌐</span>
+                <span class="site-domain" id="current-tab-domain">Current site: detecting...</span>
+            </div>
+            <button class="btn-quick-add" id="btn-quick-add" title="Create rule for this website">
+                + Rule
+            </button>
+        </div>
+
+        <!-- Rules Summary Section -->
+        <div class="rules-summary">
+            <div class="summary-header">
+                <span class="summary-title">Active Rules</span>
+                <span class="summary-badge" id="rule-count-badge">0 Active</span>
+            </div>
+            <div class="rules-mini-list" id="rules-mini-list">
+                <div class="mini-loading">Loading rules...</div>
+            </div>
+        </div>
+
+        <!-- Footer / Action Buttons -->
+        <footer class="popup-footer">
+            <button class="btn-manage" id="btn-open-options">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                Manage All Rules & Tester
+            </button>
+        </footer>
+    </div>
+
+    <script type="module" src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+    "manifest_version": 3,
+    "name": "Downloads Organizer",
+    "version": "2.0",
+    "description": "Automatically organize downloaded files using custom rules, domains, file types, regex, and dynamic placeholders.",
+    "permissions": [
+        "downloads",
+        "storage"
+    ],
+    "background": {
+        "service_worker": "bg.js",
+        "type": "module"
+    },
+    "action": {
+        "default_title": "Downloads Organizer",
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "48": "icons/icon48.png",
+            "128": "icons/icon128.png"
+        }
+    },
+    "options_ui": {
+        "page": "options.html",
+        "open_in_tab": true
+    },
+    "icons": {
+        "16": "icons/icon16.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    }
+}
