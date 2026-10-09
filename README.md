@@ -31,22 +31,7 @@ A lightweight, privacy-first **Manifest V3** Chrome extension that automatically
 
 ---
 
-## 🚀 Installation
 
-1. Clone or download this repository:
-   ```bash
-   git clone https://github.com/your-username/group-download-files-by-hostname.git
-   ```
-2. Open Google Chrome and navigate to:
-   ```text
-   chrome://extensions/
-   ```
-3. Enable **Developer mode** in the top-right corner.
-4. Click **Load unpacked** in the top-left toolbar.
-5. Select the folder containing `manifest.json`.
-6. Pin the extension icon to your browser toolbar for quick access!
-
----
 
 ## 🛠️ Usage & Rule Configuration
 
