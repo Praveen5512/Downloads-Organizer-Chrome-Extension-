@@ -33,6 +33,7 @@ A lightweight, privacy-first **Manifest V3** Chrome extension that automatically
 ---
 
 
+
 ## 🛠️ Usage & Rule Configuration
 
 Click the extension icon in the toolbar and select **Manage All Rules & Tester**, or right-click the extension icon and select **Options**.
