@@ -195,19 +195,31 @@
                     </div>
                 </div>
 
-                <!-- Filename Regex Field -->
+                <!-- Filename Match Field -->
                 <div class="form-group">
                     <div class="label-with-status">
-                        <label for="rule-regex-input">
-                            Filename Regex <span class="label-hint">(optional regular expression)</span>
+                        <label for="rule-filename-val-input">
+                            Filename Match <span class="label-hint">(optional condition &amp; value)</span>
                         </label>
-                        <span class="regex-status-badge hidden" id="regex-status-badge">Valid</span>
+                        <span class="regex-status-badge hidden" id="regex-status-badge">Valid Regex</span>
                     </div>
-                    <div class="input-with-icon">
-                        <span class="input-icon">🔍</span>
-                        <input type="text" id="rule-regex-input" class="form-input font-mono" placeholder="e.g. ^invoice_\d+.* or (statement|bill)">
+                    <div class="filename-filter-group">
+                        <div class="filename-op-container">
+                            <select id="rule-filename-op-select" class="form-select font-sans" aria-label="Filename condition">
+                                <option value="contains">Contains</option>
+                                <option value="not_contains">Does not contain</option>
+                                <option value="starts_with">Starts with</option>
+                                <option value="ends_with">Ends with</option>
+                                <option value="equals">Exact match</option>
+                                <option value="regex">Regex pattern</option>
+                            </select>
+                        </div>
+                        <div class="input-with-icon flex-1">
+                            <span class="input-icon">🔍</span>
+                            <input type="text" id="rule-filename-val-input" class="form-input font-mono" placeholder="e.g. invoice, report, or setup">
+                        </div>
                     </div>
-                    <p class="field-help">Case-insensitive regex tested against the downloaded filename.</p>
+                    <p class="field-help" id="filename-field-help">Matches if downloaded filename contains this text (case-insensitive).</p>
                 </div>
 
                 <!-- Download Path Field (MANDATORY) -->

@@ -1,4 +1,5 @@
 # Downloads Organizer (Chrome Extension)
+![poster](https://github.com/user-attachments/assets/3d4cf233-f3d4-44fe-908c-d8e50f85a377)
 
 A lightweight, privacy-first **Manifest V3** Chrome extension that automatically organizes your downloaded files into custom folders using flexible rules, regular expressions, domain filters, file extensions, and dynamic date/hostname placeholders.
 
@@ -11,7 +12,7 @@ A lightweight, privacy-first **Manifest V3** Chrome extension that automatically
   - **Download Path** (*Mandatory*): Subdirectory relative to your default `Downloads/` directory.
   - **Domain** (*Optional*): Route downloads from specific websites (e.g. `github.com` or `*.google.com`).
   - **File Type** (*Optional*): Match specific file extensions (e.g. `pdf, docx, png`).
-  - **Filename Regex** (*Optional*): Match patterns in the filename (e.g. `^invoice_\d+.*`).
+  - **Filename Condition** (*Optional*): Match filenames using user-friendly expressions (`Contains`, `Does not contain`, `Starts with`, `Ends with`, `Exact match`) with plain string values, or advanced `Regex pattern`.
 - **Dynamic Path Placeholders**: Automatically inject context variables into your folder names:
   - `{hostname}` – Origin/referrer website domain (e.g., `github.com`).
   - `{ext}` – File extension without dot (e.g., `pdf`).
@@ -31,22 +32,6 @@ A lightweight, privacy-first **Manifest V3** Chrome extension that automatically
 
 ---
 
-## 🚀 Installation
-
-1. Clone or download this repository:
-   ```bash
-   git clone https://github.com/your-username/group-download-files-by-hostname.git
-   ```
-2. Open Google Chrome and navigate to:
-   ```text
-   chrome://extensions/
-   ```
-3. Enable **Developer mode** in the top-right corner.
-4. Click **Load unpacked** in the top-left toolbar.
-5. Select the folder containing `manifest.json`.
-6. Pin the extension icon to your browser toolbar for quick access!
-
----
 
 ## 🛠️ Usage & Rule Configuration
 
@@ -54,10 +39,11 @@ Click the extension icon in the toolbar and select **Manage All Rules & Tester**
 
 ### Example Rules
 
-| Rule Name | Domain | File Type | Filename Regex | Download Path | Resulting Destination |
+| Rule Name | Domain | File Type | Filename Condition | Download Path | Resulting Destination |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Invoices** | *(any)* | `pdf` | `(invoice\|receipt\|statement)` | `Invoices/{year}` | `Downloads/Invoices/2026/invoice_01.pdf` |
+| **Invoices** | *(any)* | `pdf` | Contains `"invoice"` *(or Regex)* | `Invoices/{year}` | `Downloads/Invoices/2026/invoice_01.pdf` |
 | **GitHub Archives** | `github.com` | `zip, tar, gz` | *(any)* | `Code/GitHub` | `Downloads/Code/GitHub/repo.zip` |
+| **Camera Photos** | *(any)* | `jpg, jpeg` | Starts with `"IMG_"` | `Photos/{year}` | `Downloads/Photos/2026/IMG_1024.jpg` |
 | **Web Images** | *(any)* | `jpg, png, webp, svg` | *(any)* | `Images/{hostname}` | `Downloads/Images/unsplash.com/photo.jpg` |
 | **Office Documents** | *(any)* | `docx, xlsx, pptx` | *(any)* | `Documents/{ext}/{year}` | `Downloads/Documents/xlsx/2026/data.xlsx` |
 
