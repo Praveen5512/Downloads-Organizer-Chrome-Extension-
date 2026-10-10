@@ -35,7 +35,7 @@ const dom = {
     btnAddRule: document.getElementById("btn-add-rule"),
     btnOpenTester: document.getElementById("btn-open-tester"),
     btnOpenBackup: document.getElementById("btn-open-backup"),
-    
+
     // Rule Modal
     ruleModalBackdrop: document.getElementById("rule-modal-backdrop"),
     ruleModal: document.getElementById("rule-modal"),
@@ -47,13 +47,16 @@ const dom = {
     ruleNameInput: document.getElementById("rule-name-input"),
     ruleDomainInput: document.getElementById("rule-domain-input"),
     ruleFiletypeInput: document.getElementById("rule-filetype-input"),
-    ruleRegexInput: document.getElementById("rule-regex-input"),
+    ruleFilenameOpSelect: document.getElementById("rule-filename-op-select"),
+    ruleFilenameValInput: document.getElementById("rule-filename-val-input"),
+    filenameFieldHelp: document.getElementById("filename-field-help"),
+    ruleRegexInput: document.getElementById("rule-filename-val-input"),
     regexStatusBadge: document.getElementById("regex-status-badge"),
     rulePathInput: document.getElementById("rule-path-input"),
     ruleEnabledInput: document.getElementById("rule-enabled-input"),
     livePathPreview: document.getElementById("live-path-preview"),
     previewSubpath: document.getElementById("preview-subpath"),
-    
+
     // Tester Modal
     testerModalBackdrop: document.getElementById("tester-modal-backdrop"),
     btnCloseTester: document.getElementById("btn-close-tester"),
@@ -64,7 +67,7 @@ const dom = {
     testResHostname: document.getElementById("test-res-hostname"),
     testResExt: document.getElementById("test-res-ext"),
     testResPath: document.getElementById("test-res-path"),
-    
+
     // Backup Modal
     backupModalBackdrop: document.getElementById("backup-modal-backdrop"),
     btnCloseBackup: document.getElementById("btn-close-backup"),
@@ -93,7 +96,7 @@ async function loadState() {
         const data = await getStorageData();
         state.rules = Array.isArray(data.rules) ? data.rules : [...DEFAULT_RULES];
         state.settings = { ...DEFAULT_SETTINGS, ...(data.settings || {}) };
-        
+
         updateGlobalStatusUI();
         renderRules();
     } catch (err) {
@@ -131,11 +134,70 @@ function updateGlobalStatusUI() {
     const isEnabled = state.settings.extensionEnabled !== false;
     dom.globalToggle.checked = isEnabled;
     dom.globalStatusLabel.textContent = isEnabled ? "Active" : "Paused";
-    
+
     if (isEnabled) {
         dom.globalStatusPill.classList.remove("disabled");
     } else {
         dom.globalStatusPill.classList.add("disabled");
+    }
+}
+
+/**
+ * Formats the filename matching criterion badge for a rule card
+ */
+function formatFilenameBadge(rule) {
+    const op = rule.filenameOp || (rule.filenameRegex ? "regex" : "contains");
+    const val = (rule.filenameValue !== undefined && rule.filenameValue !== null)
+        ? rule.filenameValue
+        : (rule.filenameRegex || "");
+
+    if (!val || !val.trim()) {
+        return `
+            <span class="criterion-badge" title="Applies to any filename">
+                🔍 Any Name
+            </span>
+        `;
+    }
+
+    const escaped = escapeHtml(val.trim());
+    switch (op) {
+        case "not_contains":
+            return `
+                <span class="criterion-badge filename-match" title="Filename does not contain: ${escaped}">
+                    🔍 Excludes "${escaped}"
+                </span>
+            `;
+        case "starts_with":
+            return `
+                <span class="criterion-badge filename-match" title="Filename starts with: ${escaped}">
+                    🔍 Starts with "${escaped}"
+                </span>
+            `;
+        case "ends_with":
+            return `
+                <span class="criterion-badge filename-match" title="Filename ends with: ${escaped}">
+                    🔍 Ends with "${escaped}"
+                </span>
+            `;
+        case "equals":
+            return `
+                <span class="criterion-badge filename-match" title="Filename equals: ${escaped}">
+                    🔍 Equals "${escaped}"
+                </span>
+            `;
+        case "regex":
+            return `
+                <span class="criterion-badge regex" title="Filename regex">
+                    🔍 /${escaped}/i
+                </span>
+            `;
+        case "contains":
+        default:
+            return `
+                <span class="criterion-badge filename-match" title="Filename contains: ${escaped}">
+                    🔍 Contains "${escaped}"
+                </span>
+            `;
     }
 }
 
@@ -149,9 +211,10 @@ function renderRules() {
         const name = (rule.name || "").toLowerCase();
         const domain = (rule.domain || "").toLowerCase();
         const type = (rule.fileType || "").toLowerCase();
-        const regex = (rule.filenameRegex || "").toLowerCase();
+        const val = (rule.filenameValue || rule.filenameRegex || "").toLowerCase();
+        const op = (rule.filenameOp || "").toLowerCase();
         const path = (rule.downloadPath || "").toLowerCase();
-        return name.includes(query) || domain.includes(query) || type.includes(query) || regex.includes(query) || path.includes(query);
+        return name.includes(query) || domain.includes(query) || type.includes(query) || val.includes(query) || op.includes(query) || path.includes(query);
     });
 
     dom.ruleCountTag.innerHTML = `<strong>${state.rules.length}</strong> Rules`;
@@ -222,15 +285,7 @@ function renderRules() {
                                 </span>
                             `}
 
-                            ${rule.filenameRegex ? `
-                                <span class="criterion-badge regex" title="Filename regex">
-                                    🔍 /${escapeHtml(rule.filenameRegex)}/i
-                                </span>
-                            ` : `
-                                <span class="criterion-badge" title="Applies to any filename">
-                                    🔍 Any Name
-                                </span>
-                            `}
+                            ${formatFilenameBadge(rule)}
                         </div>
 
                         <div class="rule-destination">
@@ -287,7 +342,10 @@ function openRuleModal(ruleId = null) {
         dom.ruleNameInput.value = rule.name || "";
         dom.ruleDomainInput.value = rule.domain || "";
         dom.ruleFiletypeInput.value = rule.fileType || "";
-        dom.ruleRegexInput.value = rule.filenameRegex || "";
+        dom.ruleFilenameOpSelect.value = rule.filenameOp || (rule.filenameRegex ? "regex" : "contains");
+        dom.ruleFilenameValInput.value = (rule.filenameValue !== undefined && rule.filenameValue !== null)
+            ? rule.filenameValue
+            : (rule.filenameRegex || "");
         dom.rulePathInput.value = rule.downloadPath || "";
         dom.ruleEnabledInput.checked = rule.enabled !== false;
     } else {
@@ -296,11 +354,13 @@ function openRuleModal(ruleId = null) {
         dom.ruleNameInput.value = "";
         dom.ruleDomainInput.value = "";
         dom.ruleFiletypeInput.value = "";
-        dom.ruleRegexInput.value = "";
+        dom.ruleFilenameOpSelect.value = "contains";
+        dom.ruleFilenameValInput.value = "";
         dom.rulePathInput.value = "";
         dom.ruleEnabledInput.checked = true;
     }
 
+    updateFilenameFieldUI();
     validateRegexLive();
     updateLivePathPreview();
     dom.ruleModalBackdrop.classList.remove("hidden");
@@ -325,13 +385,23 @@ async function handleRuleFormSubmit(e) {
         return;
     }
 
-    // Validate regex if entered
-    const regexVal = dom.ruleRegexInput.value.trim();
-    if (regexVal) {
+    const op = dom.ruleFilenameOpSelect.value;
+    const val = dom.ruleFilenameValInput.value.trim();
+
+    // Validate regex only if regex operator is selected and value entered
+    if (op === "regex" && val) {
         try {
-            new RegExp(regexVal, "i");
+            let pattern = val;
+            let flags = "i";
+            if (pattern.startsWith("(?i)")) pattern = pattern.slice(4);
+            const slashMatch = pattern.match(/^\/(.+)\/([gimsuy]*)$/);
+            if (slashMatch) {
+                pattern = slashMatch[1];
+                flags = slashMatch[2] || "i";
+            }
+            new RegExp(pattern, flags);
         } catch (err) {
-            dom.ruleRegexInput.focus();
+            dom.ruleFilenameValInput.focus();
             showToast(`Invalid Regex: ${err.message}`, "error");
             return;
         }
@@ -342,7 +412,9 @@ async function handleRuleFormSubmit(e) {
         name: dom.ruleNameInput.value.trim() || "Untitled Rule",
         domain: dom.ruleDomainInput.value.trim(),
         fileType: dom.ruleFiletypeInput.value.trim(),
-        filenameRegex: regexVal,
+        filenameOp: op,
+        filenameValue: val,
+        filenameRegex: op === "regex" ? val : "", // backward compatibility
         downloadPath: path,
         enabled: dom.ruleEnabledInput.checked,
     };
@@ -362,18 +434,63 @@ async function handleRuleFormSubmit(e) {
 }
 
 /**
+ * Updates UI placeholders and help text when the filename operator changes
+ */
+function updateFilenameFieldUI() {
+    const op = dom.ruleFilenameOpSelect.value;
+    switch (op) {
+        case "not_contains":
+            dom.ruleFilenameValInput.placeholder = "e.g. temp, draft, or backup";
+            dom.filenameFieldHelp.textContent = "Matches if downloaded filename does NOT contain this text (case-insensitive).";
+            break;
+        case "starts_with":
+            dom.ruleFilenameValInput.placeholder = "e.g. IMG_, invoice_, or doc-";
+            dom.filenameFieldHelp.textContent = "Matches if downloaded filename starts with this text (case-insensitive).";
+            break;
+        case "ends_with":
+            dom.ruleFilenameValInput.placeholder = "e.g. -final, _v2, or .min";
+            dom.filenameFieldHelp.textContent = "Matches if downloaded filename ends with this text (case-insensitive).";
+            break;
+        case "equals":
+            dom.ruleFilenameValInput.placeholder = "e.g. receipt.pdf or resume.docx";
+            dom.filenameFieldHelp.textContent = "Matches if downloaded filename exactly equals this text (case-insensitive).";
+            break;
+        case "regex":
+            dom.ruleFilenameValInput.placeholder = "e.g. ^invoice_\\d+.* or (statement|bill)";
+            dom.filenameFieldHelp.textContent = "Case-insensitive regular expression tested against the downloaded filename.";
+            break;
+        case "contains":
+        default:
+            dom.ruleFilenameValInput.placeholder = "e.g. invoice, report, or setup";
+            dom.filenameFieldHelp.textContent = "Matches if downloaded filename contains this text (case-insensitive).";
+            break;
+    }
+    validateRegexLive();
+}
+
+/**
  * Live regex validation indicator
  */
 function validateRegexLive() {
-    const val = dom.ruleRegexInput.value.trim();
-    if (!val) {
+    const op = dom.ruleFilenameOpSelect.value;
+    const val = dom.ruleFilenameValInput.value.trim();
+
+    if (op !== "regex" || !val) {
         dom.regexStatusBadge.classList.add("hidden");
         return;
     }
 
     dom.regexStatusBadge.classList.remove("hidden");
     try {
-        new RegExp(val, "i");
+        let pattern = val;
+        let flags = "i";
+        if (pattern.startsWith("(?i)")) pattern = pattern.slice(4);
+        const slashMatch = pattern.match(/^\/(.+)\/([gimsuy]*)$/);
+        if (slashMatch) {
+            pattern = slashMatch[1];
+            flags = slashMatch[2] || "i";
+        }
+        new RegExp(pattern, flags);
         dom.regexStatusBadge.textContent = "Valid Regex";
         dom.regexStatusBadge.className = "regex-status-badge valid";
     } catch {
@@ -578,22 +695,52 @@ function setupEventListeners() {
 
     // Modal Form Inputs
     dom.ruleForm.addEventListener("submit", handleRuleFormSubmit);
-    dom.ruleRegexInput.addEventListener("input", validateRegexLive);
+    dom.ruleFilenameOpSelect.addEventListener("change", updateFilenameFieldUI);
+    dom.ruleFilenameValInput.addEventListener("input", validateRegexLive);
     dom.rulePathInput.addEventListener("input", updateLivePathPreview);
     dom.ruleDomainInput.addEventListener("input", updateLivePathPreview);
 
     // Preset Chips in Modal
-    document.querySelectorAll(".chip-preset[data-preset]").forEach((btn) => {
+
+    const presetButtons = document.querySelectorAll(
+        ".chip-preset[data-preset]"
+    );
+
+    presetButtons.forEach((btn) => {
         btn.addEventListener("click", () => {
-            const current = dom.ruleFiletypeInput.value.trim();
-            const preset = btn.dataset.preset;
-            if (current) {
-                dom.ruleFiletypeInput.value = `${current}, ${preset}`;
+            const presetTypes = btn.dataset.preset
+                .split(",")
+                .map((type) => type.trim().toLowerCase());
+
+            const currentTypes = dom.ruleFiletypeInput.value
+                .split(",")
+                .map((type) => type.trim().toLowerCase())
+                .filter(Boolean);
+
+            const isSelected = btn.classList.contains("active");
+
+            let updatedTypes;
+
+            if (isSelected) {
+                // Remove this preset's file types
+                updatedTypes = currentTypes.filter(
+                    (type) => !presetTypes.includes(type)
+                );
+
+                btn.classList.remove("active");
             } else {
-                dom.ruleFiletypeInput.value = preset;
+                // Add this preset's file types without duplicates
+                updatedTypes = [
+                    ...new Set([...currentTypes, ...presetTypes])
+                ];
+
+                btn.classList.add("active");
             }
+
+            dom.ruleFiletypeInput.value = updatedTypes.join(", ");
         });
     });
+
 
     // Dynamic Token Chips in Modal
     document.querySelectorAll(".token-chip[data-token]").forEach((btn) => {

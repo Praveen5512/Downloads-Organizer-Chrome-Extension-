@@ -9,13 +9,13 @@
     --bg-surface-hover: #26334d;
     --border-subtle: rgba(255, 255, 255, 0.08);
     --border-focus: rgba(99, 102, 241, 0.6);
-    
+
     --primary: #6366f1;
     --primary-hover: #4f46e5;
     --primary-glow: rgba(99, 102, 241, 0.25);
     --secondary: #8b5cf6;
     --accent: #ec4899;
-    
+
     --success: #10b981;
     --success-bg: rgba(16, 185, 129, 0.12);
     --warning: #f59e0b;
@@ -226,11 +226,11 @@ body {
     transition: var(--transition-fast);
 }
 
-input:checked + .slider {
+input:checked+.slider {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
     transform: translateX(16px);
 }
 
@@ -524,6 +524,14 @@ input:checked + .slider:before {
     background: rgba(244, 114, 182, 0.08);
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.74rem;
+}
+
+.criterion-badge.filename-match {
+    color: #f472b6;
+    border-color: rgba(244, 114, 182, 0.25);
+    background: rgba(244, 114, 182, 0.08);
+    font-size: 0.76rem;
+    font-weight: 500;
 }
 
 .rule-destination {
@@ -820,7 +828,8 @@ input:checked + .slider:before {
     padding-left: 38px;
 }
 
-.form-input, .form-textarea {
+.form-input,
+.form-textarea {
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
@@ -832,7 +841,8 @@ input:checked + .slider:before {
     transition: var(--transition-fast);
 }
 
-.form-input:focus, .form-textarea:focus {
+.form-input:focus,
+.form-textarea:focus {
     border-color: var(--border-focus);
     box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
 }
@@ -884,6 +894,66 @@ input:checked + .slider:before {
     background: var(--bg-surface-hover);
     color: var(--primary);
     border-color: rgba(99, 102, 241, 0.3);
+}
+
+/* Filename filter controls */
+.filename-filter-group {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+@media (max-width: 540px) {
+    .filename-filter-group {
+        flex-direction: column;
+    }
+}
+
+.filename-op-container {
+    width: 175px;
+    flex-shrink: 0;
+}
+
+.form-select {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 10px 36px 10px 14px;
+    color: var(--text-primary);
+    font-size: 0.88rem;
+    font-weight: 500;
+    width: 100%;
+    height: 100%;
+    min-height: 42px;
+    outline: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+}
+
+.form-select:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+    background-color: var(--bg-surface-hover);
+}
+
+.form-select:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+.form-select option {
+    background-color: #111827;
+    color: var(--text-primary);
+    padding: 8px;
+}
+
+.flex-1 {
+    flex: 1;
 }
 
 /* Regex validation badge */
@@ -1169,8 +1239,13 @@ input:checked + .slider:before {
 
 /* Animations */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes slideUp {
@@ -1178,6 +1253,7 @@ input:checked + .slider:before {
         opacity: 0;
         transform: translateY(16px) scale(0.98);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -1189,6 +1265,7 @@ input:checked + .slider:before {
         opacity: 0;
         transform: translateY(12px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1215,9 +1292,25 @@ input:checked + .slider:before {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .hidden {
     display: none !important;
+}
+
+.chip-preset {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chip-preset.active {
+
+    border-color: blue;
+}
+
+.chip-preset:hover {
+    opacity: 0.85;
 }

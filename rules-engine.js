@@ -9,6 +9,8 @@ export const DEFAULT_RULES = [
         name: "Invoices & Receipts",
         enabled: true,
         domain: "",
+        filenameOp: "regex",
+        filenameValue: "(invoice|receipt|statement|bill|tax)",
         filenameRegex: "(invoice|receipt|statement|bill|tax)",
         fileType: "pdf",
         downloadPath: "Invoices/{year}",
@@ -18,6 +20,8 @@ export const DEFAULT_RULES = [
         name: "Images & Media",
         enabled: false,
         domain: "",
+        filenameOp: "contains",
+        filenameValue: "",
         filenameRegex: "",
         fileType: "jpg, jpeg, png, gif, webp, svg, avif",
         downloadPath: "Images/{hostname}",
@@ -27,6 +31,8 @@ export const DEFAULT_RULES = [
         name: "Office Documents",
         enabled: false,
         domain: "",
+        filenameOp: "contains",
+        filenameValue: "",
         filenameRegex: "",
         fileType: "pdf, doc, docx, xls, xlsx, ppt, pptx, csv",
         downloadPath: "Documents/{ext}/{year}",
@@ -36,6 +42,8 @@ export const DEFAULT_RULES = [
         name: "GitHub Archives",
         enabled: false,
         domain: "github.com",
+        filenameOp: "contains",
+        filenameValue: "",
         filenameRegex: "",
         fileType: "zip, tar, gz",
         downloadPath: "Code/GitHub",
@@ -107,6 +115,77 @@ export function parseFilename(filename) {
 }
 
 /**
+ * Checks whether a filename matches a condition operator and string value or pattern.
+ * Supported operators:
+ * - "contains": filename contains the string (case-insensitive)
+ * - "not_contains": filename does not contain the string (case-insensitive)
+ * - "starts_with": filename starts with the string (case-insensitive)
+ * - "ends_with": filename ends with the string (case-insensitive)
+ * - "equals": filename exactly matches the string (case-insensitive)
+ * - "regex": regular expression tested against the filename
+ *
+ * @param {string} filename Downloaded filename
+ * @param {string} op Match operator
+ * @param {string} value Search string or regex pattern
+ * @returns {boolean}
+ */
+export function matchFilename(filename, op = "contains", value = "") {
+    if (value === undefined || value === null) {
+        return true;
+    }
+
+    const trimmedValue = String(value).trim();
+    if (!trimmedValue) {
+        return true; // Empty value matches any filename
+    }
+
+    const raw = filename || "";
+    const cleanName = raw.replace(/^[\\/]+/, "").split(/[\\/]/).pop() || raw;
+    const lowerClean = cleanName.toLowerCase();
+    const lowerVal = trimmedValue.toLowerCase();
+
+    switch (op) {
+        case "not_contains": {
+            return !lowerClean.includes(lowerVal);
+        }
+        case "starts_with": {
+            return lowerClean.startsWith(lowerVal);
+        }
+        case "ends_with": {
+            return lowerClean.endsWith(lowerVal);
+        }
+        case "equals": {
+            return lowerClean === lowerVal;
+        }
+        case "regex": {
+            try {
+                let pattern = trimmedValue;
+                let flags = "i";
+
+                if (pattern.startsWith("(?i)")) {
+                    pattern = pattern.slice(4);
+                }
+
+                const slashMatch = pattern.match(/^\/(.+)\/([gimsuy]*)$/);
+                if (slashMatch) {
+                    pattern = slashMatch[1];
+                    flags = slashMatch[2] || "i";
+                }
+
+                const regex = new RegExp(pattern, flags);
+                return regex.test(cleanName) || regex.test(raw);
+            } catch {
+                return false;
+            }
+        }
+        case "contains":
+        default: {
+            return lowerClean.includes(lowerVal);
+        }
+    }
+}
+
+/**
  * Checks whether a download item matches a single rule.
  * @param {object} rule
  * @param {object} item { filename, referrer, finalUrl, url }
@@ -148,30 +227,14 @@ export function matchRule(rule, item, hostname) {
         }
     }
 
-    // 2. Filename Regex Check (Optional)
-    if (rule.filenameRegex && rule.filenameRegex.trim()) {
-        try {
-            let pattern = rule.filenameRegex.trim();
-            let flags = "i";
+    // 2. Filename Condition Check (Optional)
+    const filenameOp = rule.filenameOp || (rule.filenameRegex ? "regex" : "contains");
+    const filenameVal = (rule.filenameValue !== undefined && rule.filenameValue !== null)
+        ? rule.filenameValue
+        : (rule.filenameRegex || "");
 
-            // If user wrote /(?i)pattern/ or (?i)pattern
-            if (pattern.startsWith("(?i)")) {
-                pattern = pattern.slice(4);
-            }
-
-            // If user wrote literal /pattern/flags
-            const slashMatch = pattern.match(/^\/(.+)\/([gimsuy]*)$/);
-            if (slashMatch) {
-                pattern = slashMatch[1];
-                flags = slashMatch[2] || "i";
-            }
-
-            const regex = new RegExp(pattern, flags);
-            if (!regex.test(filename)) {
-                return false;
-            }
-        } catch {
-            // Invalid regex syntax - fail safe
+    if (filenameVal && String(filenameVal).trim()) {
+        if (!matchFilename(filename, filenameOp, filenameVal)) {
             return false;
         }
     }
